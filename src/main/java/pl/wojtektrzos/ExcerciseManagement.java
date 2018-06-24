@@ -49,7 +49,7 @@ public class ExcerciseManagement {
     private static void deleteExcercise(Connection conn) {
         int id;
         Scanner scan = new Scanner(System.in);
-        System.out.println("Podaj id zadania do zmiany");
+        System.out.println("Podaj id zadania do usuniecia");
         while (!scan.hasNextInt()) {
             System.out.println("podaj ID zadania");
             scan.nextLine();

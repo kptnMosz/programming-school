@@ -22,7 +22,7 @@ public class Solutions {
         this.userId = userId;
     }
 
-    private Solutions(){
+    private Solutions() {
 
     }
 
@@ -62,46 +62,63 @@ public class Solutions {
         return this;
     }
 
-//    ---------------===========ładowanie z bazy===========-----------------
-public static Solutions findById(Connection conn, int id) throws SQLException {
-    String querry = "SELECT id, created, updated, description, excercise_id, user_id FROM solutions WHERE id=?";
-    PreparedStatement sql = conn.prepareStatement(querry);
-    sql.setInt(1, id);
-    ResultSet rs = sql.executeQuery();
-    if (rs.next()) {
-        Solutions solution = new Solutions();
-        solution.created = rs.getDate("created");
-        solution.updated = rs.getDate("updated");
-        solution.id = rs.getInt("id");
-        solution.description = rs.getString("description");
-        solution.excerciseId= rs.getInt("excercise_id");
-        solution.userId= rs.getInt("user_id");
-        return solution;
-    }else {
-        return null;
-    }
-
-}
-
-    public static ArrayList<Solutions> loadAllUsers(Connection conn) throws SQLException {
-        ArrayList<Solutions> solutions= new ArrayList<>();
-        PreparedStatement sql = conn.prepareStatement("SELECT id, created, updated, description, excercise_id, user_id FROM solutions;");
+    //    ---------------===========ładowanie z bazy===========-----------------
+    public static Solutions findById(Connection conn, int id) throws SQLException {
+        String querry = "SELECT id, created, updated, description, excercise_id, user_id FROM solutions WHERE id=?";
+        PreparedStatement sql = conn.prepareStatement(querry);
+        sql.setInt(1, id);
         ResultSet rs = sql.executeQuery();
-        while (rs.next()){
+        if (rs.next()) {
             Solutions solution = new Solutions();
             solution.created = rs.getDate("created");
             solution.updated = rs.getDate("updated");
             solution.id = rs.getInt("id");
             solution.description = rs.getString("description");
-            solution.excerciseId= rs.getInt("excercise_id");
-            solution.userId= rs.getInt("user_id");
-            solutions.add(solution);
+            solution.excerciseId = rs.getInt("excercise_id");
+            solution.userId = rs.getInt("user_id");
+            return solution;
+        } else {
+            return null;
         }
-        return solutions;
+
     }
 
 
-//    -----------------------=====operacje na bazie danych=====--------------------
+    private static ArrayList<Solutions> loadList(Connection conn, String query) throws SQLException {
+        ArrayList<Solutions> solutions = new ArrayList<>();
+        PreparedStatement sql = conn.prepareStatement("SELECT id, created, updated, description, excercise_id, user_id FROM solutions;");
+        ResultSet rs = sql.executeQuery();
+        while (rs.next()) {
+            Solutions solution = new Solutions();
+            solution.created = rs.getDate("created");
+            solution.updated = rs.getDate("updated");
+            solution.id = rs.getInt("id");
+            solution.description = rs.getString("description");
+            solution.excerciseId = rs.getInt("excercise_id");
+            solution.userId = rs.getInt("user_id");
+            solutions.add(solution);
+        }
+        return solutions;
+
+    }
+
+    public static ArrayList<Solutions> loadAllSolutions(Connection conn) throws SQLException {
+        String query = "SELECT id, created, updated, description, excercise_id, user_id FROM solutions;";
+        return loadList(conn, query);
+    }
+
+    public static ArrayList<Solutions> loadAllByUserId(Connection conn, int userId) throws SQLException {
+        String query = "SELECT id, created, updated, description, excercise_id, user_id FROM solutions WHERE user_id=" + userId + ";";
+        return loadList(conn, query);
+    }
+
+    public static ArrayList<Solutions> loadAllByExerciseId(Connection conn, int exId) throws SQLException {
+        String query = "SELECT id, created, updated, description, excercise_id, user_id FROM solutions WHERE excercise_id=" + exId + ";";
+        return loadList(conn, query);
+    }
+
+
+    //    -----------------------=====operacje na bazie danych=====--------------------
     public void saveToDb(Connection conn) throws SQLException {
         if (id == 0) {
             insert(conn);
@@ -113,32 +130,32 @@ public static Solutions findById(Connection conn, int id) throws SQLException {
     private void update(Connection conn) throws SQLException {
         String querry = "UPDATE solutions SET created = ?, updated = ?, description=?, excercise_id=?, user_id=? WHERE id=?;";
         PreparedStatement sql = conn.prepareStatement(querry);
-        sql.setDate(1,created);
-        sql.setDate(2,updated);
-        sql.setString(3,description);
-        sql.setInt(4,excerciseId);
-        sql.setInt(5,userId);
+        sql.setDate(1, created);
+        sql.setDate(2, updated);
+        sql.setString(3, description);
+        sql.setInt(4, excerciseId);
+        sql.setInt(5, userId);
         sql.executeUpdate();
     }
 
     private void insert(Connection conn) throws SQLException {
         String querry = "INSERT INTO solutions(created, updated, description, excercise_id, user_id) VALUES (?,?,?,?,?);";
         PreparedStatement sql = conn.prepareStatement(querry, new String[]{"id"});
-        sql.setDate(1,created);
-        sql.setDate(2,updated);
-        sql.setString(3,description);
-        sql.setInt(4,excerciseId);
-        sql.setInt(5,userId);
+        sql.setDate(1, created);
+        sql.setDate(2, updated);
+        sql.setString(3, description);
+        sql.setInt(4, excerciseId);
+        sql.setInt(5, userId);
         sql.executeUpdate();
         ResultSet rs = sql.getGeneratedKeys();
-        if(rs.next()){
-            id=rs.getInt(1);
+        if (rs.next()) {
+            id = rs.getInt(1);
         }
     }
 
-    public void deleteSolutions(Connection conn) throws SQLException {
-        if(id!=0){
-            PreparedStatement sql = conn.prepareStatement("DELETE FROM solutions WHERE id=" + this);
+    public void deleteSolution(Connection conn) throws SQLException {
+        if (id != 0) {
+            PreparedStatement sql = conn.prepareStatement("DELETE FROM solutions WHERE id=" + this.id);
             sql.executeUpdate();
         }
     }
